@@ -1,13 +1,14 @@
 from setuptools import setup
+from src.dl_scaman_checker.common import __version__
 
 setup(
-    name="dls_check",
-    version="0.1.3.b12",
+    name="dl-scaman-checker",
+    version=__version__,
     url="https://gitlab.com/robindar/dl-scaman_checker",
     author="David A. R. Robin",
     author_email="david.a.r.robin@gmail.com",
     package_dir={"": "src"},
-    packages = [ 'dls_check' ],
+    packages = [ 'dl_scaman_checker', 'dl_scaman_checker.common' ],
     python_requires=">=3.7, <4",
     install_requires=[
         "numpy",
@@ -16,5 +17,6 @@ setup(
         "dev": ["torch"],
     },
     package_data={
+        "": [ "VERSION" ],
     },
 )
