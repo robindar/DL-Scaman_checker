@@ -104,5 +104,5 @@ def visualize(data, model, epoch, losses):
     plt.ylabel("Loss")
     plt.title("Loss vs. number of epochs")
     plt.tight_layout()
-    clear_output()
+    clear_output(wait=True)
     plt.show()
