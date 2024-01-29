@@ -2,12 +2,17 @@ import sys
 
 from dl_scaman_checker.common import __version__
 
+def pretty_warn(msg):
+    warn = "\033[93m{}\033[00m" .format("WARN")
+    print(f"[{warn}] {msg}")
+
 def pretty_wrapped(func):
     def wrapped(*args, **kwargs):
         try:
             res = func(*args, **kwargs)
             done = "\033[92m{}\033[00m" .format("DONE")
-            print(f"[{done}] {res}")
+            if res is not None:
+                print(f"[{done}] {res}")
         except AssertionError as e:
             fail = "\033[91m{}\033[00m" .format("FAIL")
             print(f"[{fail}] {e.__str__()}")
