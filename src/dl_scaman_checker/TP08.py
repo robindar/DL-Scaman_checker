@@ -5,17 +5,17 @@ from .TP01 import pretty_wrapped, pretty_warn
 
 from IPython import display
 from IPython.display import HTML
-import numpy as np
-from tqdm import tqdm
 import matplotlib.pyplot as plt
 from matplotlib import animation
+import numpy as np
+import torch
+from tqdm import tqdm
 
 
 @pretty_wrapped
 def check_install():
     return f"Install ok. Version is v{__version__}"
 
-@pretty_wrapped
 def create_video(env, policy, num_frames=100, preprocess=None):
     def animation_update(num):
         progress_bar.update(1)
@@ -39,8 +39,9 @@ def create_video(env, policy, num_frames=100, preprocess=None):
     return anim
 
 class Memory:
-    def __init__(self, max_size):
+    def __init__(self, max_size, device):
         self.max_size = max_size
+        self.device = device
         self.full = False
         self.curr = 0
 
@@ -52,7 +53,7 @@ class Memory:
     def store(self, state, action, reward, terminal):
         idx = self.curr % self.max_size
 
-        self.states[idx] = (state * 255).to(torch.uint8).to(device)
+        self.states[idx] = (state * 255).to(torch.uint8).to(self.device)
         self.actions[idx] = action
         self.rewards[idx] = reward
         self.terminals[idx] = terminal
@@ -72,10 +73,10 @@ class Memory:
         if len(idx) == 0 or self.size() < idx.max():
             raise ValueError("Not enough elements in cache to sample {} elements".format(len(idx)))
 
-        return (self.states[idx].to(device).to(torch.float32) / 255.), \
-                self.actions[idx].to(device).to(torch.long), \
-                self.rewards[idx].to(device), \
-                self.terminals[idx].to(device).to(torch.int16)
+        return (self.states[idx].to(self.device).to(torch.float32) / 255.), \
+                self.actions[idx].to(self.device).to(torch.long), \
+                self.rewards[idx].to(self.device), \
+                self.terminals[idx].to(self.device).to(torch.int16)
 
     def _process_idx(self, idx):
         return idx % self.max_size
