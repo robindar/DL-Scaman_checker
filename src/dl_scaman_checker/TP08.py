@@ -16,7 +16,7 @@ from tqdm import tqdm
 def check_install():
     return f"Install ok. Version is v{__version__}"
 
-def create_video(env, policy, num_frames=100, preprocess=None):
+def create_video(env, policy, num_frames=100, preprocess=None, use_gymnasium=False):
     def animation_update(num):
         progress_bar.update(1)
         ax.clear()
@@ -30,7 +30,10 @@ def create_video(env, policy, num_frames=100, preprocess=None):
     env.reset()
     for _ in range(np.random.randint(1, 10)):
         env.step(0)
-    state, _, done, _ = env.step(env.action_space.sample())
+    if use_gymnasium:
+        state, _, done, _, _ = env.step(env.action_space.sample())
+    else:
+        state, _, done, _ = env.step(env.action_space.sample())
     progress_bar = tqdm(total=num_frames)
     anim = animation.FuncAnimation(fig, animation_update, frames=num_frames, interval=50)
     anim = HTML(anim.to_html5_video())
