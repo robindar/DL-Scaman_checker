@@ -20,7 +20,10 @@ def create_video(env, policy, num_frames=100, preprocess=None, use_gymnasium=Fal
     def animation_update(num):
         progress_bar.update(1)
         ax.clear()
-        state = env.render("rgb_array")
+        if use_gymnasium:
+            state = env.render()
+        else:
+            state = env.render("rgb_array")
         ax.imshow(state)
         state = state if preprocess is None else preprocess(state)
         action = policy(state)
@@ -34,7 +37,7 @@ def create_video(env, policy, num_frames=100, preprocess=None, use_gymnasium=Fal
         state, _, done, _, _ = env.step(env.action_space.sample())
     else:
         state, _, done, _ = env.step(env.action_space.sample())
-    progress_bar = tqdm(total=num_frames)
+    progress_bar = tqdm(total=num_frames, position=0)
     anim = animation.FuncAnimation(fig, animation_update, frames=num_frames, interval=50)
     anim = HTML(anim.to_html5_video())
     progress_bar.close()
