@@ -8,6 +8,7 @@ import os
 import warnings
 import contextlib
 import copy
+import urllib.request
 
 from dl_scaman_checker.common import check_install
 
@@ -106,9 +107,36 @@ def patched__download_file_from_google_drive(file_id, root, filename, md5):
 
 
 class PCAM(torchvision.datasets.pcam.PCAM):
+    def __init__(self, *args, use_robin_mirror=False, **kwargs):
+        self.use_robin_mirror = use_robin_mirror
+        super().__init__(*args, **kwargs)
+
+    def _mirror_download(self):
+        folder = self._base_folder
+
+        if not os.path.isdir(folder):
+            os.makedirs(folder, exist_ok=True)
+
+        for file_name, file_id, md5 in self._FILES[self._split].values():
+            url = f"https://www.robindar.com/pcam-hw01/{file_name}.gz"
+            fpath = str(self._base_folder / f"{file_name}.gz")
+            print("Using mirror:", url, flush=True)
+            urllib.request.urlretrieve(url, fpath)
+
+            if md5 and not torchvision.datasets.utils.check_md5(fpath, md5):
+                raise RuntimeError(
+                        f"The MD5 checksum of the download file {fpath} does not match the one on record."
+                        f"Please delete the file and try again. This was downloaded from the robindar.com mirror."
+                        f"If the issue persists, please report this to torchvision at https://github.com/pytorch/vision/issues."
+                        )
+            torchvision.datasets.utils._decompress(fpath)
+
     def _download(self):
         if self._check_exists():
             return
+
+        if self.use_robin_mirror:
+            return self._mirror_download()
 
         for file_name, file_id, md5 in self._FILES[self._split].values():
             archive_name = file_name + ".gz"

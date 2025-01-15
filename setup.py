@@ -12,6 +12,7 @@ setup(
     python_requires=">=3.7, <4",
     install_requires=[
         "numpy",
+        "packaging",
         ],
     extras_require={
         "dev": ["torch"],
