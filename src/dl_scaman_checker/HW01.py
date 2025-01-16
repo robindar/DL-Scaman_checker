@@ -107,7 +107,7 @@ def patched__download_file_from_google_drive(file_id, root, filename, md5):
 
 
 class PCAM(torchvision.datasets.pcam.PCAM):
-    def __init__(self, *args, use_robin_mirror=False, **kwargs):
+    def __init__(self, *args, use_robin_mirror=True, **kwargs):
         self.use_robin_mirror = use_robin_mirror
         super().__init__(*args, **kwargs)
 
